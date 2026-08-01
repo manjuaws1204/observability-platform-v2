@@ -6,13 +6,29 @@ on:
       - main
 
 jobs:
-  validate:
+  deploy:
     runs-on: self-hosted
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Validate Environment
+      - name: Verify Runner
+        shell: powershell
+        run: |
+          kubectl version --client
+          kubectl get nodes
+
+      - name: Validate Manifests
         shell: powershell
         run: |
           .\scripts\validate.ps1
+
+      - name: Kubernetes Dry Run
+        shell: powershell
+        run: |
+          kubectl apply --dry-run=client -f kubernetes
+
+      - name: Deploy
+        shell: powershell
+        run: |
+          kubectl apply -f kubernetes
