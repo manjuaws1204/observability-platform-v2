@@ -10,7 +10,20 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure kubeconfig
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.kube"
+
+          @"
+${{ secrets.KUBE_CONFIG }}
+"@ | Out-File "$env:USERPROFILE\.kube\config" -Encoding ascii
+
+          Write-Host "Current Context:"
+          kubectl config current-context
 
       - name: Verify Runner
         shell: powershell
